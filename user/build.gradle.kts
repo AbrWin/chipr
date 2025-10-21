@@ -13,13 +13,16 @@ repositories {
 
 dependencies {
     implementation(projects.common)
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
     implementation(libs.spring.boot.starter.security)
     implementation(libs.spring.boot.starter.validation)
 
     implementation(libs.spring.boot.starter.data.jpa)
     runtimeOnly(libs.postgresql)
+
+    implementation(libs.jwt.api)
+    runtimeOnly(libs.jwt.impl)
+    runtimeOnly(libs.jwt.jackson)
 
     testImplementation(kotlin("test"))
 }
