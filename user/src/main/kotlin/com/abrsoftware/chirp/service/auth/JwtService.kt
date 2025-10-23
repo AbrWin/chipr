@@ -25,22 +25,22 @@ class JwtService(
     val refreshTokenValidityMs = 30 * 24 * 60 * 60 * 1000L
 
     fun validateAccessToken(token: String): Boolean {
-        val claims = paseAllClaims(token) ?: return false
+        val claims = parseAllClaims(token) ?: return false
         val tokeType = claims["type"] as? String ?: return false
         return tokeType == "access"
     }
 
     fun validateRefreshToken(token: String): Boolean {
-        val claims = paseAllClaims(token) ?: return false
+        val claims = parseAllClaims(token) ?: return false
         val tokeType = claims["type"] as? String ?: return false
         return tokeType == "refresh"
     }
 
-    fun getUserIdFromToken(token: String): UserId? {
-        val claims = paseAllClaims(token) ?: throw InvalidTokenException(
-            "Invalid JWT token"
+    fun getUserIdFromToken(token: String): UserId {
+        val claims = parseAllClaims(token) ?: throw InvalidTokenException(
+            message = "The attached JWT token is not valid"
         )
-        return UUID.fromString(claims["id"] as? String)
+        return UUID.fromString(claims.subject)
     }
 
     private fun generateToken(
@@ -67,7 +67,7 @@ class JwtService(
         )
     }
 
-    fun generateRefresToken(userId: UserId): String {
+    fun generateRefreshToken(userId: UserId): String {
         return generateToken(
             userId = userId,
             type = "refresh",
@@ -75,9 +75,9 @@ class JwtService(
         )
     }
 
-    private fun paseAllClaims(token: String): Claims? {
-        val rawToken = if (token.startsWith("Bearer")) {
-            token.removePrefix("Bearer")
+    private fun parseAllClaims(token: String): Claims? {
+        val rawToken = if (token.startsWith("Bearer ")) {
+            token.removePrefix("Bearer ")
         } else token
 
         return try {
