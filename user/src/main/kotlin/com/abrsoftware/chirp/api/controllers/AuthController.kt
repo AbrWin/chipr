@@ -48,4 +48,12 @@ class AuthController(private val authService: AuthService) {
             .refresh(body.refreshToken)
             .toAuthenticatedUserDto()
     }
+
+    @PostMapping("/logout")
+    fun logout(
+        @Valid @RequestBody body: RefreshRequest
+    ) {
+        return authService
+            .logout(body.refreshToken)
+    }
 }
