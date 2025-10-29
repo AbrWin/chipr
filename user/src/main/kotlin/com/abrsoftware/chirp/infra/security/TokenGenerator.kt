@@ -1,7 +1,7 @@
-package com.abrsoftware.chirp.service.auth
+package com.abrsoftware.chirp.infra.security
 
 import java.security.SecureRandom
-import java.util.Base64
+import java.util.*
 
 object TokenGenerator {
     fun generateSecureToken(): String {

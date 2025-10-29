@@ -1,15 +1,13 @@
 package com.abrsoftware.chirp.service.auth
 
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Service
-
 import com.abrsoftware.chirp.domain.exception.InvalidTokenException
 import com.abrsoftware.chirp.domain.model.UserId
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
-import java.util.Date
-import java.util.UUID
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
+import java.util.*
 import kotlin.io.encoding.Base64
 
 @Service
