@@ -3,6 +3,7 @@ package com.abrsoftware.chirp.api.exception_handling
 import com.abrsoftware.chirp.domain.exception.EmailNotVerifedException
 import com.abrsoftware.chirp.domain.exception.InvalidCredentialsException
 import com.abrsoftware.chirp.domain.exception.InvalidTokenException
+import com.abrsoftware.chirp.domain.exception.SamePasswordException
 import com.abrsoftware.chirp.domain.exception.UserAlreadyExistsException
 import com.abrsoftware.chirp.domain.exception.UserNotFoundException
 import org.springframework.http.HttpStatus
@@ -48,6 +49,15 @@ class AuthExceptionHandler {
         e: InvalidTokenException
     ) = mapOf(
         "code" to "INVALID_TOKEN",
+        "message" to e.message
+    )
+
+    @ExceptionHandler(SamePasswordException::class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    fun onSamePasswordsException(
+        e: SamePasswordException
+    ) = mapOf(
+        "code" to "SAME_PASSWORD",
         "message" to e.message
     )
 

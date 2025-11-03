@@ -23,9 +23,9 @@ import java.time.temporal.ChronoUnit
 @Service
 class PasswordResetService(
     private val userRepository: UserRepository,
-    private val passwordRsetTokenRepository: PasswordTokenRepository,
+    private val passwordResetTokenRepository: PasswordTokenRepository,
     private val passwordEncoder: PasswordEncoder,
-    @param:Value("\${chirp.email.reset.reset.password.expiry.minutes")
+    @param:Value("\${chirp.email.reset-password.expiry-minutes}")
     private val expiryMinutes: Long,
     private val refreshTokenRepository: RefreshTokenRepository
 ) {
@@ -34,20 +34,20 @@ class PasswordResetService(
     fun requestResetPassword(email: String) {
         val user = userRepository.findByEmail(email) ?: return
 
-        passwordRsetTokenRepository.invalidateActiveTokensForUser(user)
+        passwordResetTokenRepository.invalidateActiveTokensForUser(user)
         val token = PasswordResetTokenEntity(
             user = user,
             expiresAt = Instant.now().plus(expiryMinutes, ChronoUnit.MINUTES),
         )
 
-        passwordRsetTokenRepository.save(token)
+        passwordResetTokenRepository.save(token)
 
         //TODO: Inform notification service about password reset triggert to send mail
     }
 
     @Transactional
     fun resetPassword(token: String, newPassword: String) {
-        val resetToken = passwordRsetTokenRepository.findByToken(token)
+        val resetToken = passwordResetTokenRepository.findByToken(token)
             ?: throw InvalidTokenException("Invalid password reset token")
 
         if (resetToken.isUsed) {
@@ -70,7 +70,7 @@ class PasswordResetService(
             }
         )
 
-        passwordRsetTokenRepository.save(
+        passwordResetTokenRepository.save(
             resetToken.apply {
                 this.usedAt = Instant.now()
             }
@@ -107,7 +107,7 @@ class PasswordResetService(
 
     @Scheduled(cron = "0 0 3 * * *")
     fun cleanupExpiredTokens() {
-        passwordRsetTokenRepository.deleteByExpiresAtLessThan(
+        passwordResetTokenRepository.deleteByExpiresAtLessThan(
             now = now()
         )
     }
