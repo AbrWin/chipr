@@ -1,4 +1,4 @@
-package com.abrsoftware.chirp.service.auth
+package com.abrsoftware.chirp.service
 
 import com.abrsoftware.chirp.domain.exception.InvalidTokenException
 import com.abrsoftware.chirp.domain.model.UserId

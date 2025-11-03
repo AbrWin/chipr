@@ -1,4 +1,4 @@
-package com.abrsoftware.chirp.service.auth
+package com.abrsoftware.chirp.service
 
 import com.abrsoftware.chirp.domain.exception.InvalidTokenException
 import com.abrsoftware.chirp.domain.exception.UserNotFoundException
@@ -12,37 +12,28 @@ import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
-import java.time.Instant
+import java.time.Instant.now
 import java.time.temporal.ChronoUnit
 
 @Service
 class EmailVerificationService(
     private val emailVerificationTokenRepository: EmailVerificationTokenRepository,
     private val userRepository: UserRepository,
-    @param:Value("\${chirp.email.verification.expiry-hours}") val expiryHours: Long
+    @param:Value("\${chirp.email.verification.expiry-hours}") private val expiryHours: Long
 ) {
     fun createVerificationToken(email: String): EmailVerificationToken {
 
         val userEntity = userRepository.findByEmail(email)
             ?: throw UserNotFoundException()
 
-        val existingTokens = emailVerificationTokenRepository.findByUserAndUsedAtIsNull(
-            user = userEntity
-        )
+        emailVerificationTokenRepository.invalidateActiveTokensForUser(userEntity)
 
-        val now = Instant.now()
-        val userTokens = existingTokens.map { token ->
-            token.apply {
-                this.usedAt = now
-            }
-        }
-
-        emailVerificationTokenRepository.saveAll(userTokens)
 
         val token = EmailVerificationTokenEntity(
-            expiresAt = now.plus(expiryHours, ChronoUnit.HOURS),
+            expiresAt = now().plus(expiryHours, ChronoUnit.HOURS),
             user = userEntity
         )
+
         return emailVerificationTokenRepository.save(token).toEmailVerificationToken()
     }
 
@@ -61,7 +52,7 @@ class EmailVerificationService(
 
         emailVerificationTokenRepository.save(
             verificationToken.apply {
-                this.usedAt = Instant.now()
+                this.usedAt = now()
             }
         )
 
@@ -75,7 +66,7 @@ class EmailVerificationService(
     @Scheduled(cron = "0 0 3 * * *")
     fun cleanupExpiredTokens() {
         emailVerificationTokenRepository.deleteByExpiresAtLessThan(
-            now = Instant.now()
+            now = now()
         )
     }
 }
